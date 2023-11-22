@@ -10,7 +10,7 @@ const docsSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    fileUrl: {
+    path: {
       type: String,
       required: true,
     },
