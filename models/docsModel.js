@@ -14,6 +14,10 @@ const docsSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    imagePath: {
+      type: String,
+      required: true,
+    },
   },
   { timestamps: true }
 );

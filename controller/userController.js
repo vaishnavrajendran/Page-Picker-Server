@@ -1,3 +1,5 @@
+import poppler from "pdf-poppler";
+
 import User from "../models/userModel.js";
 import Docs from "../models/docsModel.js";
 
@@ -31,15 +33,34 @@ export const getUserDocs = async (req, res) => {
 
 export const storeImageToDb = async (req, res) => {
   try {
+    const userId = req.query.userId;
     const { originalname, filename } = req.file;
+    const pdfPath = `uploads/${filename}`;
+    const imagePath = `images/${filename.replace(".pdf", "-1.png")}`;
+
+    console.log(originalname, filename, pdfPath, imagePath);
+
+    // Save PDF info to the database
     const newFile = new Docs({
-      userId: req.body.userId,
-      filename: originalname,
-      path: `uploads/${filename}`,
+      userId,
+      path: pdfPath,
+      fileName: originalname,
+      imagePath,
     });
     const newPdf = await newFile.save();
-    res.json(newPdf);
+
+    // Convert PDF to an image (1st page) and save it
+    const opts = {
+      format: "png",
+      out_dir: "images",
+      out_prefix: filename.replace(".pdf", ""),
+      page: 1,
+    };
+    const result = await poppler.convert(pdfPath, opts);
+
+    return res.json(newPdf);
   } catch (error) {
-    console.log("Error storing image name", error);
+    console.log("Error storing image and PDF info", error);
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 };

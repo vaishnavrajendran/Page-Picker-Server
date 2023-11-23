@@ -1,5 +1,8 @@
 import express, { json } from "express";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 import { connect } from "mongoose";
 import "dotenv/config";
 
@@ -14,6 +17,12 @@ const URL = isDev
 
 app.use(cors({ origin: URL }));
 app.use(json());
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+app.use("/images", express.static(path.join(__dirname, "images")));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/user", userRoute);
 
