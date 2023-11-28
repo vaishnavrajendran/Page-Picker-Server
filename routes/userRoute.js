@@ -2,6 +2,7 @@ import express from "express";
 import multer from "multer";
 
 import {
+  createNewPdf,
   createOrRetrieveUser,
   getUserDocs,
   storeImageToDb,
@@ -12,7 +13,7 @@ const storage = multer.diskStorage({
     cb(null, "uploads/");
   },
   filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname);
+    cb(null, Date.now() + "-" + file.originalname);
   },
 });
 
@@ -24,6 +25,7 @@ userRoute.get("/user-docs", getUserDocs);
 
 //POST
 userRoute.post("/getUser", createOrRetrieveUser);
-userRoute.post("/file-upload", upload.single('file'), storeImageToDb)
+userRoute.post("/file-upload", upload.single("file"), storeImageToDb);
+userRoute.post("/extract-page", createNewPdf);
 
 export default userRoute;

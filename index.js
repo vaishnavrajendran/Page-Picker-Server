@@ -23,6 +23,7 @@ const __dirname = dirname(__filename);
 
 app.use("/images", express.static(path.join(__dirname, "images")));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/modifiedPdf", express.static(path.join(__dirname, "modifiedPdf")));
 
 app.use("/user", userRoute);
 
