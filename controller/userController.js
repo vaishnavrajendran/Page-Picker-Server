@@ -45,6 +45,7 @@ export const storeImageToDb = async (req, res) => {
       const imagePath = `images/${imageName}`;
 
       // Convert 1st page of PDF to an image for thumbnail
+      // Show only images on the landing page to avoid loading all pdf's of a user
       const poppler = new Poppler("/usr/bin");
       const options = {
         firstPageToConvert: 1,
@@ -52,14 +53,14 @@ export const storeImageToDb = async (req, res) => {
         pngFile: true,
       };
 
-      // Output file without extension
+      // Output file name with path
       const outputFile = `images/${path.basename(
         imagePath,
         path.extname(imagePath)
       )}`;
       await poppler.pdfToCairo(pdfPath, outputFile, options);
 
-      // Find the image name after conversion
+      // Server automatically adding some numbers on the end of the filename to avoid duplication, so image name is not predictable.So finding it after creating the file
       const imageFiles = await fs.readdir(path.dirname(imagePath));
       const convertedImageName = imageFiles.find((file) =>
         file.startsWith(path.basename(imagePath, path.extname(imagePath)))
@@ -113,7 +114,6 @@ export const createNewPdf = async (req, res) => {
       }
     }
 
-    // Save the modified PDF
     const modifiedBytes = await pdfDoc.save();
     const outputPath = `modifiedPdf/modified${Date.now()}.pdf`;
     await fs.writeFile(outputPath, modifiedBytes);
