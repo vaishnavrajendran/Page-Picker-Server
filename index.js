@@ -16,17 +16,7 @@ const allowedOrigins = [
   "http://localhost:3000",
 ];
 
-app.options("*", cors());
-
-app.use(
-  cors({
-    origin: allowedOrigins,
-    methods: "GET,POST",
-    credentials: true,
-    optionsSuccessStatus: 204,
-  })
-);
-
+app.use(cors());
 app.use(json());
 
 const __filename = fileURLToPath(import.meta.url);
