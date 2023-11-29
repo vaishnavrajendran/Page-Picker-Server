@@ -13,7 +13,19 @@ const app = express();
 const isDev = process.env.NODE_ENV === "development";
 const URL = isDev ? "http://localhost:3000" : process.env.PAGE_PICKER_CLIENT;
 
-app.use(cors({ origin: process.env.PAGE_PICKER_CLIENT }));
+const allowedOrigins = [
+  "https://page-picker.vercel.app/",
+  "https://page-picker-afk6fhe6n-vaishnavrajendran.vercel.app/",
+  "http://localhost:3000",
+];
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    methods: "GET,POST",
+    credentials: true,
+  })
+);
 app.use(json());
 
 const __filename = fileURLToPath(import.meta.url);
