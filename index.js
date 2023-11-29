@@ -10,10 +10,10 @@ import userRoute from "./routes/userRoute.js";
 
 const app = express();
 
-const isDev = process.env.NODE_ENV === "development";
-const URL = isDev ? "http://localhost:3000" : process.env.PAGE_PICKER_CLIENT;
+// const isDev = process.env.NODE_ENV === "development";
+// const URL = isDev ? "http://localhost:3000" : process.env.PAGE_PICKER_CLIENT;
 
-app.use(cors({ origin: URL }));
+app.use(cors({ origin: "https://page-picker.vercel.app/" }));
 app.use(json());
 
 const __filename = fileURLToPath(import.meta.url);
