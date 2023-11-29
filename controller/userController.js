@@ -118,7 +118,7 @@ export const createNewPdf = async (req, res) => {
     const outputPath = `modifiedPdf/modified${Date.now()}.pdf`;
     await fs.writeFile(outputPath, modifiedBytes);
 
-    res.json({ downloadLink: `http://localhost:8080/${outputPath}` });
+    res.json({ downloadLink: `${process.env.SERVER_URL}/${outputPath}` });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error occurred while creating pdf" });
