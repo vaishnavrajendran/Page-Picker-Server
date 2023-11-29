@@ -11,12 +11,22 @@ import userRoute from "./routes/userRoute.js";
 const app = express();
 
 const allowedOrigins = [
-  "https://page-picker.vercel.app/",
-  "https://page-picker-afk6fhe6n-vaishnavrajendran.vercel.app/",
+  "https://page-picker.vercel.app",
+  "https://page-picker-afk6fhe6n-vaishnavrajendran.vercel.app",
   "http://localhost:3000",
 ];
 
-app.use(cors());
+app.options("*", cors());
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    methods: "GET,POST",
+    credentials: true,
+    optionsSuccessStatus: 204,
+  })
+);
+
 app.use(json());
 
 const __filename = fileURLToPath(import.meta.url);
