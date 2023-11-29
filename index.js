@@ -10,7 +10,10 @@ import userRoute from "./routes/userRoute.js";
 
 const app = express();
 
-app.use(cors());
+const isDev = app.settings.env === "development";
+const URL = isDev ? "http://localhost:3000" : process.env.PAGE_PICKER_CLIENT;
+
+app.use(cors({ origin: URL }));
 app.use(json());
 
 const __filename = fileURLToPath(import.meta.url);
