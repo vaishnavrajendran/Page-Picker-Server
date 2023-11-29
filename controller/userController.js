@@ -1,6 +1,7 @@
 import fs from "fs/promises";
 import poppler from "pdf-poppler";
 import { PDFDocument } from "pdf-lib";
+import path from "path";
 
 import User from "../models/userModel.js";
 import Docs from "../models/docsModel.js";
@@ -34,41 +35,51 @@ export const getUserDocs = async (req, res) => {
 };
 
 export const storeImageToDb = async (req, res) => {
-  try {
-    const userId = req.query.userId;
-    const { originalname, filename } = req.file;
-    const pdfPath = `uploads/${filename}`;
-    const imagePath = `images/${filename.replace(".pdf", "-1.png")}`;
+  if (req.file.mimetype === "application/pdf") {
+    try {
+      const userId = req.query.userId;
+      const { originalname, filename } = req.file;
+      const pdfPath = `uploads/${filename}`;
+      const imageName = `${filename.replace(".pdf", "")}.png`;
+      const imagePath = `images/${imageName}`;
 
-    console.log(originalname, filename, pdfPath, imagePath);
+      // Convert PDF to an image (1st page) and save it
+      const opts = {
+        format: "png",
+        out_dir: path.dirname(imagePath),
+        out_prefix: path.basename(imagePath, path.extname(imagePath)),
+        page: 1,
+      };
 
-    // Save PDF info to the database
-    const newFile = new Docs({
-      userId,
-      path: pdfPath,
-      fileName: originalname,
-      imagePath,
-    });
-    const newPdf = await newFile.save();
+      await poppler.convert(pdfPath, opts);
 
-    // Convert PDF to an image (1st page) and save it
-    const opts = {
-      format: "png",
-      out_dir: "images",
-      out_prefix: filename.replace(".pdf", ""),
-      page: 1,
-    };
-    await poppler.convert(pdfPath, opts);
-    return res.json(newPdf);
-  } catch (error) {
-    console.error("Error storing image and PDF info", error);
-    return res.status(500).json({ error: "Internal Server Error" });
+      // Find the image name after conversion
+      const imageFiles = await fs.readdir(path.dirname(imagePath));
+      const convertedImageName = imageFiles.find((file) =>
+        file.startsWith(path.basename(imagePath, path.extname(imagePath)))
+      );
+
+      // Save PDF info to the database
+      const newFile = new Docs({
+        userId,
+        path: pdfPath,
+        fileName: originalname,
+        imagePath: `images/${convertedImageName}`,
+      });
+      const newPdf = await newFile.save();
+      return res.json(newPdf);
+    } catch (error) {
+      console.error("Error storing image and PDF info", error);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  } else {
+    return res.status(500).json({ error: "Only pdf files accepted" });
   }
 };
 
 export const createNewPdf = async (req, res) => {
   try {
-    const { path, userId, pageOrder, selectedPages } = req.body;
+    const { path, pageOrder, selectedPages } = req.body;
 
     // Read pdf
     const pdfBytes = await fs.readFile(path);
