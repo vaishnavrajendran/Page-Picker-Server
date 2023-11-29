@@ -10,7 +10,7 @@ import userRoute from "./routes/userRoute.js";
 
 const app = express();
 
-app.use(cors({ origin: process.env.PAGE_PICKER_CLIENT }));
+app.use(cors());
 app.use(json());
 
 const __filename = fileURLToPath(import.meta.url);
