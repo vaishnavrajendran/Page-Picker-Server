@@ -35,6 +35,7 @@ export const getUserDocs = async (req, res) => {
 };
 
 export const storeImageToDb = async (req, res) => {
+  //Backend validation
   if (req.file.mimetype === "application/pdf") {
     try {
       const userId = req.query.userId;
@@ -43,17 +44,20 @@ export const storeImageToDb = async (req, res) => {
       const imageName = `${filename.replace(".pdf", "")}.png`;
       const imagePath = `images/${imageName}`;
 
-      // Convert PDF to an image (1st page) and save it
+      // Convert 1st page of PDF to an image for thumbnail
       const opts = {
         format: "png",
         out_dir: path.dirname(imagePath),
         out_prefix: path.basename(imagePath, path.extname(imagePath)),
         page: 1,
+        width: 400,
+        height: 700,
+        dpi: 60, //for low quality image
       };
 
       await poppler.convert(pdfPath, opts);
 
-      // Find the image name after conversion
+      // Find the image name after conversion, doing so becuase it automatically adding random numbers which is difficult to predict at the end to avoid duplicate file names.
       const imageFiles = await fs.readdir(path.dirname(imagePath));
       const convertedImageName = imageFiles.find((file) =>
         file.startsWith(path.basename(imagePath, path.extname(imagePath)))
