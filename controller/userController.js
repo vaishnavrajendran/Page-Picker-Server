@@ -1,5 +1,5 @@
 import fs from "fs/promises";
-import poppler from "pdf-poppler";
+import { Poppler } from "node-poppler";
 import { PDFDocument } from "pdf-lib";
 import path from "path";
 
@@ -35,7 +35,7 @@ export const getUserDocs = async (req, res) => {
 };
 
 export const storeImageToDb = async (req, res) => {
-  //Backend validation
+  // Backend validation
   if (req.file.mimetype === "application/pdf") {
     try {
       const userId = req.query.userId;
@@ -45,19 +45,21 @@ export const storeImageToDb = async (req, res) => {
       const imagePath = `images/${imageName}`;
 
       // Convert 1st page of PDF to an image for thumbnail
-      const opts = {
-        format: "png",
-        out_dir: path.dirname(imagePath),
-        out_prefix: path.basename(imagePath, path.extname(imagePath)),
-        page: 1,
-        width: 400,
-        height: 700,
-        dpi: 60, //for low quality image
+      const poppler = new Poppler();
+      const options = {
+        firstPageToConvert: 1,
+        lastPageToConvert: 1,
+        pngFile: true,
       };
 
-      await poppler.convert(pdfPath, opts);
+      // Output file without extension
+      const outputFile = `images/${path.basename(
+        imagePath,
+        path.extname(imagePath)
+      )}`;
+      await poppler.pdfToCairo(pdfPath, outputFile, options);
 
-      // Find the image name after conversion, doing so becuase it automatically adding random numbers which is difficult to predict at the end to avoid duplicate file names.
+      // Find the image name after conversion
       const imageFiles = await fs.readdir(path.dirname(imagePath));
       const convertedImageName = imageFiles.find((file) =>
         file.startsWith(path.basename(imagePath, path.extname(imagePath)))
@@ -70,6 +72,7 @@ export const storeImageToDb = async (req, res) => {
         fileName: originalname,
         imagePath: `images/${convertedImageName}`,
       });
+
       const newPdf = await newFile.save();
       return res.json(newPdf);
     } catch (error) {
