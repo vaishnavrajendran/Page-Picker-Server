@@ -45,7 +45,7 @@ export const storeImageToDb = async (req, res) => {
       const imagePath = `images/${imageName}`;
 
       // Convert 1st page of PDF to an image for thumbnail
-      const poppler = new Poppler();
+      const poppler = new Poppler("/usr/bin");
       const options = {
         firstPageToConvert: 1,
         lastPageToConvert: 1,
