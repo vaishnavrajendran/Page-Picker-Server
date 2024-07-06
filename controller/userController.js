@@ -46,7 +46,9 @@ export const storeImageToDb = async (req, res) => {
 
       // Convert 1st page of PDF to an image for thumbnail
       // Show only images on the landing page to avoid loading all pdf's of a user
-      const poppler = new Poppler("/usr/bin");
+
+      // const poppler = new Poppler("/usr/bin"); //To run local remove "/usr/bin"
+      const poppler = new Poppler();
       const options = {
         firstPageToConvert: 1,
         lastPageToConvert: 1,
